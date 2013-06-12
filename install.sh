@@ -2,65 +2,69 @@
 
 # Author: Vincent
 
+source ./make_conf.sh
+
 cur=`pwd`
 
-wget http://www.oberhumer.com/opensource/lzo/download/lzo-2.04.tar.gz
-if [ $? -ne 0 ]; then
-	echo "Download lzo failed.";
-	exit 1;
-fi
+echo "Step 1: install openvpn...."
+#wget http://www.oberhumer.com/opensource/lzo/download/lzo-2.04.tar.gz
+#if [ $? -ne 0 ]; then
+#	echo "Download lzo failed.";
+#	exit 1;
+#fi
+#
+#wget http://swupdate.openvpn.net/community/releases/openvpn-2.1.4.tar.gz
+#if [ $? -ne 0 ]; then
+#	echo "Download openvpn failed.";
+#	exit 1;
+#fi
+#
+#yum install -y openssl openssl-devel automake pkgconfig iptables gcc lrzsz make
+#if [ $? -ne 0 ]; then
+#	echo "yum install failed.";
+#	exit 1;
+#fi
+#
+#tar zxvf lzo-2.04.tar.gz
+#if [ $? -ne 0 ]; then
+#	echo "tar failed.";
+#	exit 1;
+#fi
+#cd lzo-2.04/
+#./configure
+#if [ $? -ne 0 ]; then
+#	echo "configure failed.";
+#	exit 1;
+#fi
+#make && make check && make install
+#if [ $? -ne 0 ]; then
+#	echo "Install lzo failed.";
+#	exit 1;
+#fi
+#cd ../
 
-wget http://swupdate.openvpn.net/community/releases/openvpn-2.1.4.tar.gz
-if [ $? -ne 0 ]; then
-	echo "Download openvpn failed.";
-	exit 1;
-fi
+#tar zxvf openvpn-2.1.4.tar.gz
+#if [ $? -ne 0 ]; then
+#	echo "tar failed.";
+#	exit 1;
+#fi
+#cd openvpn-2.1.4
+#./configure --with-lzo-headers=/usr/local/include \
+#	 --with-lzo-lib=/usr/local/lib  \
+#	 --with-ssl-headers=/usr/include/openssl  \
+#	 --with-ssl-lib=/usr/lib
+#if [ $? -ne 0 ]; then
+#	echo "configure failed.";
+#	exit 1;
+#fi
+#make && make install
+#if [ $? -ne 0 ]; then
+#	echo "Install lzo failed.";
+#	exit 1;
+#fi
+#cd ../
 
-yum install -y openssl openssl-devel automake pkgconfig iptables gcc lrzsz
-if [ $? -ne 0 ]; then
-	echo "yum install failed.";
-	exit 1;
-fi
-
-tar zxvf lzo-2.04.tar.gz
-if [ $? -ne 0 ]; then
-	echo "tar failed.";
-	exit 1;
-fi
-cd lzo-2.04/
-./configure
-if [ $? -ne 0 ]; then
-	echo "configure failed.";
-	exit 1;
-fi
-make && make check && make install
-if [ $? -ne 0 ]; then
-	echo "Install lzo failed.";
-	exit 1;
-fi
-cd ../
-
-tar zxvf openvpn-2.1.4.tar.gz
-if [ $? -ne 0 ]; then
-	echo "tar failed.";
-	exit 1;
-fi
-cd openvpn-2.1.4
-./configure --with-lzo-headers=/usr/local/include \
-	 --with-lzo-lib=/usr/local/lib  \
-	 --with-ssl-headers=/usr/include/openssl  \
-	 --with-ssl-lib=/usr/lib
-if [ $? -ne 0 ]; then
-	echo "configure failed.";
-	exit 1;
-fi
-make && make install
-if [ $? -ne 0 ]; then
-	echo "Install lzo failed.";
-	exit 1;
-fi
-cd ../
-
+echo "Step 2: copy rsa...."
 cd openvpn-2.1.4
 mkdir -p /etc/openvpn
 cp -r easy-rsa /etc/openvpn/
@@ -77,6 +81,8 @@ if [ $? -ne 0 ]; then
 	exit 1;
 fi
 
+echo "Step 3: install keys...."
+cd /etc/openvpn/easy-rsa/2.0/
 source vars
 ./clean-all
 if [ $? -ne 0 ]; then
@@ -96,14 +102,12 @@ if [ $? -ne 0 ]; then
 	exit 1;
 fi
 
-./build-key client1
+./build-key $client
 if [ $? -ne 0 ]; then
 	echo "build-key failed.";
 	exit 1;
 fi
 
-cp server.conf /usr/local/etc/
-cp client1.conf /usr/local/etc/
 
 $OPENSSL='openssl'
 ./build-dh
@@ -112,12 +116,9 @@ if [ $? -ne 0 ]; then
 	exit 1;
 fi
 
-rm -rf keys.tar.gz
-tar -zcvf  keys.tar.gz keys
-sz -be keys.tar.gz
-cp keys.tar.gz $cur
+cp -r keys $cur
 
-iptables -t nat -A POSTROUTING -s 10.8.0.0/24  -j SNAT --to-source 36.54.6.11
+iptables -t nat -A POSTROUTING -s 10.8.0.0/24  -j SNAT --to-source $ip
 if [ $? -ne 0 ]; then
 	echo "iptables failed.";
 	exit 1;
@@ -136,4 +137,14 @@ if [ $? -ne 0 ]; then
 	exit 1;
 fi
 
+cd $cur
+
+cp server.conf /usr/local/etc/
+cp ${client}.conf /usr/local/etc/
+
+cp ${client}.conf keys/${client}.ovpn
+tar -zcvf keys.tar.gz keys
+sz -be keys.tar.gz
+
+echo "Please exec: /usr/local/sbin/openvpn --config /usr/local/etc/server.conf"
 
