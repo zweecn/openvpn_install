@@ -1,7 +1,7 @@
 #!/bin/bash
 
-ip='198.52.120.50'
-client='client1'
+export ip='116.251.209.189'
+export client='client1'
 
 
 ###########################################################
@@ -41,8 +41,8 @@ remote ${ip} 1194
 persist-key
 persist-tun
 ca ca.crt
-cert client1.crt         
-key client1.key
+cert ${client}.crt         
+key ${client}.key
 ns-cert-type server
 comp-lzo
 verb 3

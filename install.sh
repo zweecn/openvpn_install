@@ -66,7 +66,6 @@ cd ../
 
 echo "Step 2: copy rsa...."
 cd openvpn-2.1.4
-mkdir -p /etc/openvpn
 cp -r easy-rsa /etc/openvpn/
 if [ $? -ne 0 ]; then
 	echo "copy easy-rsa failed.";
@@ -109,7 +108,7 @@ if [ $? -ne 0 ]; then
 fi
 
 
-$OPENSSL='openssl'
+export OPENSSL='openssl'
 ./build-dh
 if [ $? -ne 0 ]; then
 	echo "build-dh failed.";
@@ -143,7 +142,7 @@ cp server.conf /usr/local/etc/
 cp ${client}.conf /usr/local/etc/
 
 cp ${client}.conf keys/${client}.ovpn
-tar -zcvf keys.tar.gz keys
+tar -zcvf keys.tar.gz keys/ca.crt keys/${client}.crt keys/${client}.key keys/${client}.ovpn
 sz -be keys.tar.gz
 
 echo "Please exec: /usr/local/sbin/openvpn --config /usr/local/etc/server.conf"
