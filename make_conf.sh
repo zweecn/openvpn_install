@@ -17,7 +17,9 @@ key /etc/openvpn/easy-rsa/2.0/keys/server.key
 dh /etc/openvpn/easy-rsa/2.0/keys/dh1024.pem
    
 server 10.8.0.0 255.255.255.0
-    
+
+duplicate-cn
+
 client-to-client
 keepalive 10 120
          
