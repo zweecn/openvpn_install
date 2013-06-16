@@ -1,12 +1,12 @@
 #!/bin/bash
 
-export ip='x.x.x.x'
-export client='client1'
-
+export ip="x.x.x.x"
+export client="client1"
+export port="11940"
 
 ###########################################################
 echo "local ${ip}
-port 11940
+port ${port}
 proto udp
  
 dev tun
@@ -37,7 +37,7 @@ echo "client
 dev tun
 proto udp
   
-remote ${ip} 11940
+remote ${ip} ${port}
 persist-key
 persist-tun
 ca ca.crt
