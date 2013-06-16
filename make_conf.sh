@@ -1,12 +1,12 @@
 #!/bin/bash
 
-export ip='116.251.209.189'
+export ip='x.x.x.x'
 export client='client1'
 
 
 ###########################################################
 echo "local ${ip}
-port 1194
+port 11940
 proto udp
  
 dev tun
@@ -37,7 +37,7 @@ echo "client
 dev tun
 proto udp
   
-remote ${ip} 1194 
+remote ${ip} 11940
 persist-key
 persist-tun
 ca ca.crt
@@ -51,3 +51,5 @@ redirect-gateway def1
 route-method exe
 route-delay 2
 " > ${client}.conf
+
+cp ${client}.conf ${client}.ovpn
