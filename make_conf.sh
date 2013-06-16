@@ -2,7 +2,7 @@
 
 export ip="x.x.x.x"
 export client="client1"
-export port="11940"
+export port="xxxxx"
 
 ###########################################################
 echo "local ${ip}
